@@ -1,0 +1,52 @@
+# Project name fixes container/volume names regardless of the folder name.
+name: dating-sim-lab
+
+services:
+  postgres:
+    image: docker.io/library/postgres:16-alpine
+    environment:
+      POSTGRES_USER: dating
+      POSTGRES_PASSWORD: dating
+      POSTGRES_DB: dating
+    ports:
+      - "5437:5432"   # host 5437 -> no clash with the hotel (5433) and flight (5435) labs
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dating -d dating"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3050:3050"
+    environment:
+      PORT: 3050
+      DATABASE_URL: postgresql://dating:dating@postgres:5432/dating
+      JWT_SECRET: local-learning-secret
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3050/api/health >/dev/null || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "5177:5177"
+
+volumes:
+  postgres_data:

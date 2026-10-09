@@ -1,0 +1,22 @@
+{
+  "name": "@dsl/api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts"
+  },
+  "dependencies": {
+    "@dsl/avatar": "*",
+    "@dsl/content": "*",
+    "@dsl/engine": "*",
+    "@fastify/cors": "^11.3.1",
+    "@fastify/jwt": "^10.2.4",
+    "fastify": "^5.12.5",
+    "pg": "^8.23.1",
+    "tsx": "^4.23.15"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1"
+  }
+}

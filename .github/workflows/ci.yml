@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    name: Typecheck, tests, content, balance, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run validate-content
+      # Fails if any single-style bot (always nice, always flirty, ...) wins more than 5% of games.
+      - run: npm run simulate -- 300 --ci
+      - run: npm run build -w apps/web
+
+  e2e:
+    name: End-to-end game through the API (containers)
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Start the stack
+        run: docker compose up -d --build
+      - name: Wait for the API
+        run: for i in $(seq 1 60); do curl -sf http://localhost:5177/api/health && exit 0; sleep 2; done; exit 1
+      - name: Play a full game
+        run: npm run e2e
+      - name: Logs on failure
+        if: failure()
+        run: docker compose logs --tail 100

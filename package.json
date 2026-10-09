@@ -1,0 +1,26 @@
+{
+  "name": "dating-sim-lab",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "test": "tsx --test packages/engine/test/*.test.ts packages/avatar/test/*.test.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "validate-content": "tsx packages/content/scripts/validate.ts",
+    "simulate": "tsx scripts/simulate.ts",
+    "dev:api": "npm run dev -w apps/api",
+    "dev:web": "npm run dev -w apps/web",
+    "e2e": "tsx scripts/e2e.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.3"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
